@@ -146,7 +146,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       setError(null);
     } catch (err: any) {
       setLoading(false);
-      
+
     }
   };
 
@@ -177,7 +177,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
+    <Dialog open={isOpen} onOpenChange={() => { }}>
       <DialogContent className="w-[95%] sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto" showCloseButton={false}>
         <DialogHeader className="mb-2 sm:mb-4">
           <DialogTitle className="flex items-center justify-between text-lg sm:text-xl">
