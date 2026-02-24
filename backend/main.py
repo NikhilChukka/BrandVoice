@@ -1,4 +1,23 @@
 
+# ── Bootstrap GCP credentials from env var ─────────────────────────────────
+# Must run BEFORE any google-cloud / firebase_admin / genai imports so that
+# Application Default Credentials (ADC) are available to all SDKs.
+import os as _os, base64 as _b64, json as _json, tempfile as _tmp
+
+_b64_creds = _os.environ.get("GOOGLE_CREDENTIALS_B64")
+if _b64_creds and not _os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"):
+    try:
+        _decoded = _b64.b64decode(_b64_creds).decode("utf-8")
+        _sa = _json.loads(_decoded)
+        _cred_file = _os.path.join(_tmp.gettempdir(), "gcp_service_account.json")
+        with open(_cred_file, "w") as _f:
+            _json.dump(_sa, _f)
+        _os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = _cred_file
+        print(f"[startup] GOOGLE_APPLICATION_CREDENTIALS set to {_cred_file}")
+    except Exception as _e:
+        print(f"[startup] WARNING: failed to write GCP credentials from GOOGLE_CREDENTIALS_B64: {_e}")
+# ────────────────────────────────────────────────────────────────────────────
+
 import json
 import os
 from fastapi import Body, FastAPI, Form, HTTPException, Query, UploadFile, File
