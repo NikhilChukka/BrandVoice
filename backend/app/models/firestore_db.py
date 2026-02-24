@@ -154,10 +154,8 @@ def get_twitter_credentials_collection():
 def get_youtube_credentials_collection():
     return get_collection('youtube_credentials')
 
-# Get Firebase Web API Key from environment variable
-FIREBASE_WEB_API_KEY = os.getenv("FIREBASE_WEB_API_KEY")
-if not FIREBASE_WEB_API_KEY:
-    raise ValueError("FIREBASE_WEB_API_KEY environment variable is not set")
+# FIREBASE_WEB_API_KEY is read lazily inside sign_in_with_email_password to avoid
+# a hard crash at import time when the env var is not yet available.
 
 async def get_db() -> AsyncGenerator[FirestoreSession, None]:
     """
@@ -197,9 +195,15 @@ async def sign_in_with_email_password(email: str, password: str) -> Dict[str, st
     Sign in with email and password using Firebase Auth REST API.
     """
     try:
+        web_api_key = os.getenv("FIREBASE_WEB_API_KEY")
+        if not web_api_key:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="FIREBASE_WEB_API_KEY is not configured on the server"
+            )
         # Sign in with email and password using Firebase Web API
         response = requests.post(
-            f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}",
+            f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={web_api_key}",
             json={
                 "email": email,
                 "password": password,

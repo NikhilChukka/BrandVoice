@@ -17,7 +17,12 @@ MODEL_IMAGE = "imagen-3.0-generate-002"
 
 load_dotenv()
 
-storage_client = storage.Client()
+from app.core.firebase import get_storage_bucket
+
+def _get_storage_client():
+    """Return the authenticated GCS client from the shared Firebase init."""
+    return get_storage_bucket().client
+
 BUCKET_NAME = "brandvoice-images"
 
 
@@ -34,10 +39,10 @@ client = Client(
 )
 
 try:
-    bucket = storage_client.get_bucket(BUCKET_NAME)
+    bucket = _get_storage_client().get_bucket(BUCKET_NAME)
 except Exception:
     print(f"Bucket {BUCKET_NAME} not found, creating it...")
-    bucket = storage_client.create_bucket(BUCKET_NAME)
+    bucket = _get_storage_client().create_bucket(BUCKET_NAME)
     # Set the bucket to allow public access
     bucket.iam_configuration.public_access_prevention = "unspecified"
     bucket.patch()
