@@ -20,8 +20,9 @@ def _load_credentials():
     """
     Try credentials in this order:
       1. Application Default Credentials (metadata server on GCP, gcloud auth locally)
-      2. JSON file at path in GOOGLE_APPLICATION_CREDENTIALS (e.g. mounted Secret)
-      3. JSON file specified by settings.google_application_credentials (local fallback)
+      2. Base64-encoded JSON in GOOGLE_CREDENTIALS_B64 (ideal for Render/Heroku/Railway)
+      3. JSON file at path in GOOGLE_APPLICATION_CREDENTIALS (e.g. mounted Secret)
+      4. JSON file specified by settings.google_application_credentials (local fallback)
     Return a (cred, project_id) tuple; project_id may be None for file-based creds.
     """
     # 1️⃣ ADC – succeeds automatically on Cloud Run / GCF / GKE Workload Identity
@@ -32,13 +33,27 @@ def _load_credentials():
     except DefaultCredentialsError:
         logger.debug("ADC not available, checking key files")
 
-    # 2️⃣ Env-var path (works with Cloud Run Secret mount)
+    # 2️⃣ Base64-encoded service account JSON (Render, Heroku, Railway, etc.)
+    b64_creds = os.getenv("GOOGLE_CREDENTIALS_B64")
+    if b64_creds:
+        import base64
+        import json
+        try:
+            decoded = base64.b64decode(b64_creds).decode("utf-8")
+            sa_dict = json.loads(decoded)
+            cred = credentials.Certificate(sa_dict)
+            logger.info("Using credentials from GOOGLE_CREDENTIALS_B64")
+            return cred, sa_dict.get("project_id")
+        except Exception as e:
+            logger.warning("Failed to load GOOGLE_CREDENTIALS_B64: %s", e)
+
+    # 3️⃣ Env-var path (works with Cloud Run Secret mount)
     key_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
     if key_path and Path(key_path).exists():
         logger.info("Using credentials file from $GOOGLE_APPLICATION_CREDENTIALS")
         return credentials.Certificate(key_path), None
 
-    # 3️⃣ Local settings path
+    # 4️⃣ Local settings path
     from app.core.config import get_settings
 
     settings = get_settings()
@@ -49,7 +64,8 @@ def _load_credentials():
 
     raise FileNotFoundError(
         "No valid GCP credentials found via ADC, "
-        "$GOOGLE_APPLICATION_CREDENTIALS, or settings.google_application_credentials"
+        "GOOGLE_CREDENTIALS_B64, $GOOGLE_APPLICATION_CREDENTIALS, "
+        "or settings.google_application_credentials"
     )
 
 
