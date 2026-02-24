@@ -12,11 +12,11 @@ from google.adk.sessions import InMemorySessionService
 from google.adk.sessions import DatabaseSessionService
 from google.adk.runners import Runner
 from google.adk.agents.sequential_agent import SequentialAgent
-from marketing_agency.sub_agents.social_media_image_create import social_media_pipeline_agent
-from marketing_agency.sub_agents.content import content_creation_workflow
-from marketing_agency.sub_agents.seo import product_seo_agent
-from marketing_agency.sub_agents.research import market_analysis_agent
-from marketing_agency.sub_agents.mood_board import color_palette_agent
+from app.marketing_agency.sub_agents.social_media_image_create import social_media_pipeline_agent
+from app.marketing_agency.sub_agents.content import content_creation_workflow
+from app.marketing_agency.sub_agents.seo import product_seo_agent
+from app.marketing_agency.sub_agents.research import market_analysis_agent
+from app.marketing_agency.sub_agents.mood_board import color_palette_agent
 from google.adk.artifacts import InMemoryArtifactService
 
 from fastapi import BackgroundTasks
@@ -26,7 +26,7 @@ import uvicorn
 
 
 
-from firebase_utils import (
+from app.firebase_utils import (
     get_brand_profile_by_id,
     get_product_by_id,
     get_products_by_brand,
@@ -40,6 +40,9 @@ from firebase_utils import (
     upload_logo_to_firebase,
     upload_media_to_firebase
 )
+
+# Import the external integration router
+from app.api.v1 import router as external_router
 
 APP_NAME = "marketing_agency_app"
 USER_ID = "brandvoice"
@@ -74,6 +77,9 @@ app.add_middleware(
     allow_methods=["*"],  
     allow_headers=["*"], 
 )
+
+# Mount external integration routes (social auth, scheduler, etc.)
+app.include_router(external_router, prefix="/api/v1")
 
 
 class BrandProfileRequest(BaseModel):
