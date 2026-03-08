@@ -112,7 +112,8 @@ export default function SmartScheduler() {
     const fetchContentLibraryItems = async () => {
         try {
             // const response = await axios.get(`https://brandvoice-backend-172212688771.us-central1.run.app/brand/${user?.uid}/products`);
-            const response = await axios.get(`https://brandvoice-main-backend.onrender.com/brand/${user?.uid}/products`);
+            // const response = await axios.get(`https://brandvoice-main-backend.onrender.com/brand/${user?.uid}/products`);
+            const response = await axios.get(`https://brandvoice-backend-411010693388.us-central1.run.app/brand/${user?.uid}/products`);
 
             console.log("Fetched content library items:", response.data);
 
@@ -129,7 +130,8 @@ export default function SmartScheduler() {
 
             console.log("Specfiic product Id", productId)
             // const response = await axios.get(`https://brandvoice-backend-172212688771.us-central1.run.app/products/${productId}`);
-            const response = await axios.get(`https://brandvoice-main-backend.onrender.com/products/${productId}`);
+            // const response = await axios.get(`https://brandvoice-main-backend.onrender.com/products/${productId}`);
+            const response = await axios.get(`https://brandvoice-backend-411010693388.us-central1.run.app/products/${productId}`);
 
             console.log("Fetched content library Item:", response.data);
 

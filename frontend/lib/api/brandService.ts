@@ -2,7 +2,8 @@
 import { BrandData, BrandResponse } from '../redux/types';
 
 // const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://brandvoice-backend-172212688771.us-central1.run.app';
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://brandvoice-main-backend.onrender.com';
+// const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://brandvoice-main-backend.onrender.com';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://brandvoice-backend-411010693388.us-central1.run.app';
 
 export class BrandService {
   static async createBrand(brandData: BrandData, token: string): Promise<BrandResponse> {
